@@ -1,0 +1,32 @@
+# GitHub Actions workflow to publish the backend to GitHub Packages Repository
+
+name: Publish Jetstream
+on:
+- workflow_dispatch
+- push
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        # Windows is not supported yet, as we need to run a shell script.
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+    - uses: actions/setup-go@v2
+      with:
+        # Stratos does not build cleanly at this point with go >= 1.15
+        go-version: '~1.14.0'
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 14.x
+        architecture: x64
+        registry-url: https://npm.pkg.github.com
+    - run: npm ci
+    - run: npm run build-backend
+    - run: npm run test-backend
+    - run: npm run publish-backend
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
