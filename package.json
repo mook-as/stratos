@@ -4,10 +4,10 @@
   "description": "Stratos Console",
   "main": "index.js",
   "scripts": {
-    "build-backend": "./build/bk-build.sh",
+    "build-backend": "node ./build/bk-build.mjs",
     "full-build-dev": "npm run build-dev; npm run build-backend",
     "fetch-backend-deps": "./build/bk-fetch-deps.sh",
-    "test-backend": "./build/bk-build.sh test",
+    "test-backend": "node ./build/bk-build.mjs -- test",
     "publish-backend": "node ./build/bk-package.mjs",
     "update-webdriver": "webdriver-manager update",
     "build": "node --max_old_space_size=8192 node_modules/@angular/cli/bin/ng build --prod",

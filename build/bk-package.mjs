@@ -49,8 +49,9 @@ function main() {
   const stratosDir = path.resolve(url.fileURLToPath(import.meta.url), '..', '..');
   spawn('npm', 'run', 'build-backend', { cwd: stratosDir });
 
+  const require = module.createRequire(import.meta.url);
   /** The Stratos top-level package.json */
-  const stratosManifest = module.createRequire(import.meta.url)(path.resolve(stratosDir, 'package.json'));
+  const stratosManifest = require(path.resolve(stratosDir, 'package.json'));
 
   const executableName = /^win/.test(os.platform()) ? 'jetstream.exe' : 'jetstream';
 
