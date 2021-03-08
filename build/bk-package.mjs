@@ -64,6 +64,23 @@ function main() {
     ..._.pick(stratosManifest, ['version', 'author', 'license', 'homepage', 'bugs']),
   };
 
+  if (process.env.GITHUB_ACTIONS) {
+    const { stdout, status, signal, error } =
+      spawnSync('git', ['describe', '--always', '--exclude=*'],
+        { cwd: stratosDir, stdio: ['inherit', 'pipe', 'inherit'] });
+    if (error) {
+      throw error;
+    }
+    if (signal !== null && signal !== 'SIGTERM') {
+      throw new Error(`git describe exited with signal ${signal}`);
+    }
+    if (status !== null && status !== 0) {
+      throw new Error(`git describe exited with status ${status}`);
+    }
+    const describe = stdout.toString().trim();
+    jetstreamManifest.version += `-${describe}-${process.env.GITHUB_ACTION}`;
+  }
+
   if (process.env.GITHUB_REPOSITORY) {
     jetstreamManifest.repository = {
       type: 'git',
@@ -72,6 +89,8 @@ function main() {
     const org = process.env.GITHUB_REPOSITORY.split('/')[0];
     jetstreamManifest.name = `@${org}/${jetstreamManifest.name}`;
   }
+
+  console.log(jetstreamManifest);
 
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stratos-jetstream-'));
   try {
